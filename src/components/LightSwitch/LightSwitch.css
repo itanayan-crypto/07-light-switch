@@ -1,0 +1,355 @@
+/* Task 7: brick wall at night, two cast-iron street lamps (red = OFF, green = ON)
+   Layers (neeche se upar): wall -> light cones -> leaves -> footpath + road -> vignette
+   -> bench -> night overlay (dono lights OFF, halka dark) -> lamp posts -> status pills */
+
+.rl-scene {
+  --p: 1; /* scale: desktop 1, mobile chhota */
+  --rl-stage-h: 600px;
+  --rl-road: 100px;
+  --rl-curb: 8px;
+  --rl-walk: 42px;
+  --rl-plinth: 22px;
+  --rl-ground: calc(var(--rl-road) + var(--rl-curb) + var(--rl-walk) + var(--rl-plinth)); /* wall ka neechla kinara */
+  --rl-feet: calc(var(--rl-road) + var(--rl-curb) + 20px * var(--p));                      /* pole ke pair ki unchai */
+  --rl-pole-h: calc(420px * var(--p));
+  --rl-ly: calc(var(--rl-stage-h) - var(--rl-feet) - var(--rl-pole-h) + 76px * var(--p));  /* lantern ka center (upar se) */
+  --rl-cone-h: calc(var(--rl-stage-h) - var(--rl-ground) - var(--rl-ly));                  /* lantern se wall ke neeche tak */
+
+  max-width: 860px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--ink);
+  border: 3px solid var(--ink);
+  border-radius: 22px;
+  box-shadow: 10px 10px 0 var(--ink);
+}
+
+.rl-stage { position: relative; height: var(--rl-stage-h); overflow: hidden; background: #0f1411; }
+
+/* ---------- Wall ---------- */
+.rl-wall {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: var(--rl-ground);
+  z-index: 0;
+  background: var(--rl-bricks) 0 0 / 288px 136px;
+}
+.rl-edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: var(--rl-ground);
+  z-index: 1;
+  width: 5.5%;
+  background: linear-gradient(90deg, #070a10, #0e1417 70%, #131a1c);
+}
+.rl-window {
+  position: absolute;
+  left: 18%;
+  top: 56%;
+  width: 11px;
+  height: 24px;
+  border-radius: 3px;
+  background: radial-gradient(#ffb04a, #c9650f);
+  box-shadow: 0 0 14px 4px rgba(255, 150, 40, 0.45);
+}
+
+/* lamp ka roshni ka triangle: lit eint, tez kinara, door jaate-jaate dheema */
+.rl-lit {
+  --h: var(--rl-cone-h);
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(circle at var(--lx) var(--rl-ly), rgba(255, 205, 100, 0.5) 0, rgba(255, 205, 100, 0.16) 180px, transparent 360px),
+    var(--rl-bricks-lit) 0 0 / 288px 136px;
+  clip-path: polygon(
+    var(--lx) var(--rl-ly),
+    calc(var(--lx) - 0.9 * var(--h)) calc(var(--rl-ly) + var(--h)),
+    calc(var(--lx) + 0.9 * var(--h)) calc(var(--rl-ly) + var(--h))
+  );
+  -webkit-mask-image: radial-gradient(circle at var(--lx) var(--rl-ly), #000 0, rgba(0, 0, 0, 0.9) 200px, rgba(0, 0, 0, 0.35) 380px, transparent 520px);
+  mask-image: radial-gradient(circle at var(--lx) var(--rl-ly), #000 0, rgba(0, 0, 0, 0.9) 200px, rgba(0, 0, 0, 0.35) 380px, transparent 520px);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.rl-lit.is-on { opacity: 1; }
+
+.rl-foliage {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  width: 52%;
+  height: 50%;
+}
+
+/* ---------- Ground ---------- */
+.rl-plinth {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--rl-road) + var(--rl-curb) + var(--rl-walk));
+  z-index: 2;
+  height: var(--rl-plinth);
+  background: linear-gradient(#36433a, #232c26);
+  border-top: 3px solid #4a584d;
+}
+.rl-walk {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--rl-road) + var(--rl-curb));
+  z-index: 2;
+  height: var(--rl-walk);
+  background:
+    repeating-linear-gradient(90deg, transparent 0 118px, rgba(0, 0, 0, 0.38) 118px 120px),
+    linear-gradient(#5a5038, #3a3426);
+  box-shadow: inset 0 2px 0 rgba(255, 235, 170, 0.14);
+}
+.rl-curb {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--rl-road);
+  z-index: 2;
+  height: var(--rl-curb);
+  background: linear-gradient(#8a7c58, #4d442f);
+  border-bottom: 2px solid #1e1a12;
+}
+.rl-road {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  height: var(--rl-road);
+  background:
+    linear-gradient(rgba(140, 165, 130, 0.14), transparent 55%),
+    var(--rl-cobbles) 0 0 / auto;
+}
+
+/* kinaron par andhera + painterly grain */
+.rl-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.4)),
+    radial-gradient(ellipse at 50% 45%, transparent 38%, rgba(0, 0, 0, 0.6) 100%);
+}
+.rl-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.3;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* ---------- Bench ---------- */
+.rl-bench {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--rl-road) + var(--rl-curb) + 14px * var(--p));
+  z-index: 4;
+  width: calc(200px * var(--p));
+  height: auto;
+  transform: translateX(-50%);
+  /* jitni lights ON, utni bench roshan (--lit = 0, 1, 2) */
+  filter: brightness(calc(0.35 + var(--lit) * 0.325));
+  transition: filter 0.4s ease;
+}
+
+/* dono lights off: scene gehra dark, par wall, patte, bench, road halke dikhte rahein */
+.rl-night {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: #05080f; /* halka blue-ish night tint */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+.rl-scene.is-dark .rl-night { opacity: 0.72; } /* 0.6 halka, 0.72 balanced, 0.85 bahut dark */
+
+/* ---------- Lamp post ---------- */
+.rl-pole {
+  position: absolute;
+  left: var(--lx);
+  bottom: var(--rl-feet);
+  z-index: 6;
+  width: calc(120px * var(--p));
+  height: var(--rl-pole-h);
+  transform: translateX(-50%);
+}
+.rl-art { display: block; width: 100%; height: 100%; overflow: visible; transition: filter 0.5s ease; }
+/* andhere mein kaala lohe ka pole sirf halki kinar se dikhe */
+.rl-scene.is-dark .rl-art { filter: drop-shadow(0 0 1.5px rgba(150, 165, 190, 0.5)); }
+
+.rl-halo, .rl-pool, .rl-shadow { opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
+.rl-shadow { fill-opacity: 0.4; }
+.rl-pole.is-on .rl-halo, .rl-pole.is-on .rl-pool, .rl-pole.is-on .rl-shadow { opacity: 1; }
+.rl-glass.is-on { filter: drop-shadow(0 0 9px rgba(255, 170, 50, 0.95)); }
+
+/* geeli sadak par lamp ki jhilmil */
+.rl-reflect {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: calc(46px * var(--p));
+  height: calc(80px * var(--p));
+  transform: translateX(-50%);
+  background: linear-gradient(rgba(255, 185, 80, 0.38), transparent);
+  filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.rl-pole.is-on .rl-reflect { opacity: 1; }
+
+/* ---------- Small control box on the pole ---------- */
+.rl-box {
+  position: absolute;
+  top: calc(196px * var(--p));
+  left: 50%;
+  z-index: 2;
+  width: calc(42px * var(--p));
+  padding: calc(8px * var(--p)) 0 calc(7px * var(--p));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(5px * var(--p));
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #0a0b0d, #2b2e35 30%, #15171b 65%, #050506);
+  border: 1.5px solid #000;
+  border-radius: 9px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.5),
+    2px 4px 6px rgba(0, 0, 0, 0.6);
+}
+.rl-scene.is-dark .rl-box { filter: brightness(0.8); }
+/* pital ke screws */
+.rl-box::before, .rl-box::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffe9a8, #b8923d 60%, #5d4614);
+  box-shadow: calc(32px * var(--p)) 0 0 #b8923d;
+}
+.rl-box::before { top: 3px; }
+.rl-box::after { bottom: 3px; }
+
+.rl-led {
+  width: 7px;
+  height: 7px;
+  margin-top: 2px;
+  border-radius: 50%;
+  background: #ff5d5d;
+  box-shadow: 0 0 0 1.5px #000, 0 0 6px 1px rgba(255, 80, 80, 0.8);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+.rl-led.is-on { background: #5dffa0; box-shadow: 0 0 0 1.5px #000, 0 0 6px 1px rgba(80, 255, 150, 0.85); }
+
+.rl-key { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.rl-key-label {
+  font-size: calc(0.55rem * var(--p));
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  color: #c9a24a;
+  text-shadow: 0 1px 0 #000;
+}
+
+/* chhota pital-ring wala dome button */
+.rl-btn {
+  position: relative;
+  width: calc(26px * var(--p));
+  height: calc(26px * var(--p));
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  background:
+    radial-gradient(circle at 34% 26%, rgba(255, 255, 255, 0.95) 0 7%, rgba(255, 255, 255, 0) 32%),
+    radial-gradient(circle at 50% 62%, var(--c1) 0, var(--c2) 62%, var(--c3) 100%);
+  box-shadow:
+    0 0 0 2px #d8b25a,
+    0 0 0 3.5px #2a1f08,
+    0 3px 5px rgba(0, 0, 0, 0.6),
+    inset 0 -3px 4px rgba(0, 0, 0, 0.35);
+  filter: saturate(0.6) brightness(0.75);
+  transition: transform 0.1s ease, filter 0.2s ease, box-shadow 0.2s ease;
+}
+.rl-btn::after { content: ""; position: absolute; inset: -8px; border-radius: 50%; } /* touch area bada */
+.rl-btn--red   { --c1: #ff8a8a; --c2: #e83a3a; --c3: #8f1414; --glow: 255, 70, 70; }
+.rl-btn--green { --c1: #9dffc4; --c2: #2fcf79; --c3: #0d6b3a; --glow: 60, 230, 130; }
+.rl-btn:hover { filter: saturate(0.95) brightness(1); }
+.rl-btn.is-active {
+  filter: none;
+  box-shadow:
+    0 0 0 2px #ffe08a,
+    0 0 0 3.5px #2a1f08,
+    0 0 12px 3px rgba(var(--glow), 0.75),
+    0 3px 5px rgba(0, 0, 0, 0.55),
+    inset 0 -3px 4px rgba(0, 0, 0, 0.3);
+}
+.rl-btn:active { transform: translateY(2px) scale(0.95); }
+.rl-btn:focus-visible { outline: 2px solid #4d8bff; outline-offset: 6px; }
+
+/* ---------- Status pills (road par) ---------- */
+.rl-status {
+  position: absolute;
+  left: var(--lx);
+  bottom: 24px;
+  z-index: 7;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  color: #f1e6c8;
+  background: linear-gradient(#25221a, #14120d);
+  border: 2px solid #8a7440;
+  border-radius: 10px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.55);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.rl-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ff5d5d;
+  box-shadow: 0 0 6px 1px rgba(255, 80, 80, 0.7);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+.rl-status.is-on .rl-status-dot { background: #ffb43a; box-shadow: 0 0 7px 2px rgba(255, 180, 58, 0.85); }
+
+@media (max-width: 600px) {
+  .rl-scene {
+    --p: 0.8;
+    --rl-stage-h: 470px;
+    --rl-road: 80px;
+    --rl-curb: 6px;
+    --rl-walk: 34px;
+    --rl-plinth: 18px;
+  }
+  .rl-status { bottom: 18px; padding: 4px 9px; font-size: 0.72rem; gap: 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rl-lit, .rl-night, .rl-bench, .rl-art, .rl-halo, .rl-pool, .rl-shadow, .rl-reflect,
+  .rl-btn, .rl-led, .rl-status-dot { transition: none; }
+}
